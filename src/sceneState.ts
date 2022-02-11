@@ -9,6 +9,7 @@ import { PlayerState } from "./player";
 import { Sandwitch, SandwitchState } from "./sandwitch";
 import { CameraMode } from "./gameCamera";
 import { bossFightDialogue, clearDialogue, createConversation, createDialogue, introDialogue } from "./dialogue";
+import { assetsPath } from "./assetMap";
 
 export abstract class SceneState {
   scene: Scene;
@@ -148,7 +149,7 @@ export class BattleGameState extends SceneState {
         .then(() => createDialogue({
           text: "Don't give up Tashawasha!! We can beat him!!",
           name: "Mr Borker",
-          spriteSrc: "../assets/mrborker/sad.png",
+          spriteSrc: `${assetsPath}/mrborker/sad.png`,
         }, document.getElementById('dialogue-root')!))
         .then(() => {
           clearDialogue(document.getElementById('dialogue-root')!);
@@ -259,7 +260,7 @@ export class SceneGameState extends SceneState{
         .then(() => createDialogue({
           text: "Don't give up!! Let's keep going Tashawasha!!",
           name: "Mr Borker",
-          spriteSrc: "../assets/mrborker/sad.png",
+          spriteSrc: `${assetsPath}/mrborker/sad.png`,
         }, document.getElementById('dialogue-root')!))
         .then(() => {
           clearDialogue(document.getElementById('dialogue-root')!);

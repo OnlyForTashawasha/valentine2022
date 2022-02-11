@@ -3,6 +3,7 @@ import { Assets } from "./assets";
 import { Controller } from "./controller";
 import { replaceChildren } from "./helpers";
 import { createConversation } from "./dialogue";
+import { assetsPath } from "./assetMap";
 
 export class Game {
   lastProcess: number = performance.now();
@@ -43,12 +44,12 @@ export class Game {
       [
         {
           name: "Mr Borker",
-          spriteSrc: '../assets/mrborker/neutral.png',
+          spriteSrc: `${assetsPath}/mrborker/neutral.png`,
           text: "You won!"
         },
         {
           name: "Mr Borker",
-          spriteSrc: '../assets/mrborker/happy.png',
+          spriteSrc: `${assetsPath}/mrborker/happy.png`,
           text: "Thanks for playing"
         },
       ],

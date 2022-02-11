@@ -3,6 +3,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils"
 import { AssetMap } from "./assetMap";
+import { createHTMLElement } from "./helpers";
 
 
 export class Assets  {
@@ -127,6 +128,18 @@ export class AssetLoader {
       Object.keys(assetMap.textures).map(async name => {
         const asset = await loadTexture(name, assetMap.textures[name])
         assets.addTexture(name, asset);
+      })
+    )
+    
+    // Load images
+    await Promise.all(
+      assetMap.images.map(src => {
+        const imgElem = createHTMLElement('img', { src: src });
+        return new Promise<void>((resolve, _) => {
+          imgElem.addEventListener('load', () => {
+            resolve();
+          }, { once: true });
+        })
       })
     )
     

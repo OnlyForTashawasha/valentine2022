@@ -1,3 +1,4 @@
+import { assetsPath } from "./assetMap";
 import { createHTMLElement as e, replaceChildren } from "./helpers"
 
 export function createLoadingScreen(root: HTMLElement): void {
@@ -6,7 +7,7 @@ export function createLoadingScreen(root: HTMLElement): void {
     children: [
       e('img', {
         class: 'loading-img',
-        src: '../assets/loadingLogo.svg'
+        src: `${assetsPath}/loadingLogo.svg`
       }),
       e('div', {
         class: 'loading-text',

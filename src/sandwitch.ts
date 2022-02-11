@@ -28,7 +28,16 @@ export class Sandwitch extends Entity<SandwitchState> {
   
   override onEnter(scene: Scene): GameObject {
     const s = super.onEnter(scene);
+    scene.outlinePass.selectedObjects.push(this.model!);
     return s;
+  }
+  
+  override onExit(scene: Scene): GameObject {
+    const index = scene.outlinePass.selectedObjects.indexOf(this.model!);
+    if (index !== -1) {
+      scene.outlinePass.selectedObjects.splice(index, 1);
+    }
+    return super.onExit(scene);
   }
   
   attack(): Promise<void> {
