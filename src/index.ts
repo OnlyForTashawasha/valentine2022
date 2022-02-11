@@ -5,7 +5,7 @@ import { Game } from "./game";
 import { setMobileFullScreen } from "./helpers";
 import { createLoadingScreen, exitLoadingScreen } from "./loading";
 
-export const VERSION = '1.0.0';
+export const VERSION = '1.0.1';
 
 const main = async () => {
   console.log(`Version ${VERSION}`);

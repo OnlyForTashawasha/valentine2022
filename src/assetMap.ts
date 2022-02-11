@@ -1,5 +1,5 @@
 
-export const assetsPath = `../assets`
+export const assetsPath = `./assets`
 
 export const GAMEASSETS: AssetMap = {
   models: {
@@ -24,7 +24,7 @@ export const GAMEASSETS: AssetMap = {
   },
   images: [
     `${assetsPath}/mrborker/angry.png`,
-    `${assetsPath}/mrborker/dissappointed.png`,
+    `${assetsPath}/mrborker/disappointed.png`,
     `${assetsPath}/mrborker/happy.png`,
     `${assetsPath}/mrborker/neutral.png`,
     `${assetsPath}/mrborker/sad.png`,
