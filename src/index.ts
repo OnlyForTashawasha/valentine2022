@@ -5,7 +5,11 @@ import { Game } from "./game";
 import { setMobileFullScreen } from "./helpers";
 import { createLoadingScreen, exitLoadingScreen } from "./loading";
 
+export const VERSION = '1.0.0';
+
 const main = async () => {
+  console.log(`Version ${VERSION}`);
+
   createLoadingScreen(document.getElementById('root')!);
   
   // Load assets
