@@ -55,6 +55,10 @@ export class Scene {
   // Called when the game ends
   game: Game;
   
+  // This is set to true when th3e player dies or when
+  // the player wins
+  completed: boolean = false
+  
   private _state: SceneState;
   
   constructor(assets: Assets, game: Game) {
@@ -171,7 +175,8 @@ export class Scene {
         o.range.start <= this.player.range.end &&
         this.player.range.start <= o.range.end &&
         this.player.floor === o.floor &&
-        this.player.state !== PlayerState.Death
+        this.player.state !== PlayerState.Death &&
+        !this.completed
       ) {
         return true;
       }

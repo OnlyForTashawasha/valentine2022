@@ -19,11 +19,15 @@ const main = async () => {
   
   setMobileFullScreen();
   
+  // Only play intro if not played before
   const dialogueRoot = document.getElementById('dialogue-root')!
-  await createConversation(
-    introDialogue,
-    dialogueRoot
-  );
+  if (window.localStorage.getItem('introPlayed') !== 'true') {
+    await createConversation(
+      introDialogue,
+      dialogueRoot
+    );
+    window.localStorage.setItem('introPlayed', 'true');
+  }
   clearDialogue(dialogueRoot);
   
   /**

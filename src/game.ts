@@ -4,6 +4,7 @@ import { Controller } from "./controller";
 import { replaceChildren } from "./helpers";
 import { createConversation } from "./dialogue";
 import { assetsPath } from "./assetMap";
+import { GameAudio } from "./audio";
 
 export class Game {
   lastProcess: number = performance.now();
@@ -12,10 +13,12 @@ export class Game {
   controller: Controller = new Controller();
   root: HTMLElement 
   isActive: boolean = false;
+  audio: GameAudio;
   constructor(assets: Assets, root: HTMLElement) {
     this.assets = assets;
     this.root = root;
     this.scene = new Scene(assets, this);
+    this.audio = new GameAudio(assets);
   }
   
   /**
@@ -39,22 +42,8 @@ export class Game {
    */
   onGameComplete(): void {
     this.isActive = false;
-    replaceChildren(document.getElementById('ui')!, null);
-    createConversation(
-      [
-        {
-          name: "Mr Borker",
-          spriteSrc: `${assetsPath}/mrborker/neutral.png`,
-          text: "You won!"
-        },
-        {
-          name: "Mr Borker",
-          spriteSrc: `${assetsPath}/mrborker/happy.png`,
-          text: "Thanks for playing"
-        },
-      ],
-      document.getElementById('dialogue-root')!
-    );
+    // Change to letter
+    window.location.href = './letter';
   }
   
   start(): void {

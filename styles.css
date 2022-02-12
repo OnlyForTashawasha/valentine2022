@@ -1,5 +1,8 @@
 * {
   box-sizing: border-box;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
 }
 
 @font-face {
@@ -112,7 +115,7 @@ body {
 }
 
 .loading-img {
-  width: 50vw;
+  height: 10rem;
   border-radius: 1.5rem;
   -webkit-animation: shake-top 2s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite both;
 	animation: shake-top 2s cubic-bezier(0.455, 0.030, 0.515, 0.955) infinite both;

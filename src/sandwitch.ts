@@ -11,6 +11,7 @@ export enum SandwitchState {
   JumpAttack,
   Laugh,
   Throw,
+  Death,
 }
 
 export class Sandwitch extends Entity<SandwitchState> {
@@ -50,6 +51,17 @@ export class Sandwitch extends Entity<SandwitchState> {
     return this._currAttack.start();
   }  
   
+  die(): Promise<void> {
+    return new Promise((resolve, _) => {
+      this.state = SandwitchState.Death;
+      const onAnimFinish = () => {
+        this.mixer!.removeEventListener('finished', onAnimFinish);
+        resolve();
+      }
+      this.mixer!.addEventListener('finished', onAnimFinish);
+    })
+  }
+  
   override _onStateEnter(): void {
     switch (this.state) {
       case SandwitchState.Idle:
@@ -63,6 +75,9 @@ export class Sandwitch extends Entity<SandwitchState> {
         break;
       case SandwitchState.Throw:
         this._playAnim('sandwitchThrowAnim', { once: true });
+        break;
+      case SandwitchState.Death:
+        this._playAnim('sandwitchDeathAnim', { once: true });
         break;
       default:
         break;
@@ -101,16 +116,18 @@ export class Sandwitch extends Entity<SandwitchState> {
   }
   
   override process(delta: number): GameObject {
-    // Update attack
-    this._currAttack?.process(delta);
-    
-    // See if a new attack is needed
-    this._nextAttackTimeLeft -= delta;
-    if (this._nextAttackTimeLeft <= 0 && this._currAttack === null) {
-      this.attack().then(() => {
-        this._currAttack = null;
-        this._nextAttackTimeLeft = this._attackCooldown;
-      })
+    if (this.state !== SandwitchState.Death) {
+      // Update attack
+      this._currAttack?.process(delta);
+      
+      // See if a new attack is needed
+      this._nextAttackTimeLeft -= delta;
+      if (this._nextAttackTimeLeft <= 0 && this._currAttack === null) {
+        this.attack().then(() => {
+          this._currAttack = null;
+          this._nextAttackTimeLeft = this._attackCooldown;
+        })
+      }
     }
     // Update animation
     if (this.mixer !== null) {
@@ -151,7 +168,9 @@ export class BoulderAttack extends SandwitchAttack {
       const onAnimFinish = () => {
         this._sandwitch.mixer!.removeEventListener('finished', onAnimFinish);
         this._finishAnim = true;
-        this._sandwitch.state = SandwitchState.Idle;
+        if (this._sandwitch.state !== SandwitchState.Death) {
+          this._sandwitch.state = SandwitchState.Idle;
+        }
         // Wait for all boulders to be finished
         const onFinish = () => {
           this._finishEventTarget.removeEventListener('finished', onFinish);
@@ -202,7 +221,9 @@ export class JumpAttack extends SandwitchAttack {
       const onAnimFinish = () => {
         this._sandwitch.mixer!.removeEventListener('finished', onAnimFinish);
         this._finishAnim = true;
-        this._sandwitch.state = SandwitchState.Idle;
+        if (this._sandwitch.state !== SandwitchState.Death) {
+          this._sandwitch.state = SandwitchState.Idle;
+        }
         // Wait for all boulders to be finished
         const onFinish = () => {
           this._finishEventTarget.removeEventListener('finished', onFinish);
@@ -262,7 +283,9 @@ export class MissileAttack extends SandwitchAttack {
        * as the animation only changes when there is a state change
        */
       const onFinish = () => {
-        this._sandwitch.state = SandwitchState.Idle;
+        if (this._sandwitch.state !== SandwitchState.Death) {
+          this._sandwitch.state = SandwitchState.Idle;
+        }
         this._finishEventTarget.removeEventListener('finished', onFinish);
         resolve();
       }

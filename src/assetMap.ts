@@ -18,6 +18,7 @@ export const GAMEASSETS: AssetMap = {
     sandwitchJumpAttackAnim: `${assetsPath}/sandwitch/jumpAttack.fbx`,
     sandwitchLaughAnim: `${assetsPath}/sandwitch/laugh.fbx`,
     sandwitchThrowAnim: `${assetsPath}/sandwitch/throw.fbx`,
+    sandwitchDeathAnim: `${assetsPath}/sandwitch/death.fbx`,
   },
   textures: {
     alert: `${assetsPath}/alert.png`
@@ -36,7 +37,13 @@ export const GAMEASSETS: AssetMap = {
     `${assetsPath}/sandwitch/neutral.png`,
     `${assetsPath}/sandwitch/serious.png`,
     `${assetsPath}/sandwitch/weird.png`,
-  ]
+  ],
+  audio: {
+    bossTheme: `${assetsPath}/sound/bossTheme.mp3`,
+    whatIsLove: `${assetsPath}/sound/whatIsLove.mp3`,
+    dialogueTheme: `${assetsPath}/sound/dialogueTheme.mp3`,
+    death: `${assetsPath}/sound/death.mp3`,
+  }
 }
 
 export type AssetMap = {
@@ -51,4 +58,7 @@ export type AssetMap = {
   }
   // List of images to preload
   images: Array<string>
+  audio: {
+    [key: string]: string
+  }
 }

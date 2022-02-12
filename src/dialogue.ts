@@ -238,3 +238,41 @@ export const bossFightDialogue = [
     text: "O no ..."
   },
 ]
+
+export const endingDialogue = [
+  {
+    name: "SandWitch",
+    spriteSrc: `${assetsPath}/sandwitch/serious.png`,
+    text: "How can this be?"
+  },
+  {
+    name: "SandWitch",
+    spriteSrc: `${assetsPath}/sandwitch/neutral.png`,
+    text: "How can you be so ...."
+  },
+  {
+    name: "SandWitch",
+    spriteSrc: `${assetsPath}/sandwitch/serious.png`,
+    text: "... PAWerful.."
+  },
+  {
+    name: "Mr Borker",
+    spriteSrc: `${assetsPath}/mrborker/sly.png`,
+    text: "You BREADer give up now you sandwitch"
+  },
+  {
+    name: "Mr Borker",
+    spriteSrc: `${assetsPath}/mrborker/angry.png`,
+    text: "And give back the valentine letter to Tashawasha!!!"
+  },
+  {
+    name: "SandWitch",
+    spriteSrc: `${assetsPath}/sandwitch/serious.png`,
+    text: "... take it .."
+  },
+  {
+    name: "SandWitch",
+    spriteSrc: `${assetsPath}/sandwitch/serious.png`,
+    text: "It's too much UWU for me to handle ..."
+  },
+]

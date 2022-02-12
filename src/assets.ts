@@ -10,6 +10,7 @@ export class Assets  {
   private models: { [key: string]: Group } = {};
   private animations: { [key: string]: Group } = {};
   private textures: { [key: string]: Texture } = {};
+  private audio: { [key: string]: HTMLAudioElement } = {};
   
   addModel(name: string, group: Group): void {
     this.models[name] = group;
@@ -21,6 +22,17 @@ export class Assets  {
   
   addTexture(name: string, texture: Texture): void {
     this.textures[name] = texture;
+  }
+  
+  addAudio(name: string, audio: HTMLAudioElement): void {
+    this.audio[name] = audio;
+  }
+  
+  getAudio(name: string): HTMLAudioElement | null {
+    if (name in this.audio) {
+      return this.audio[name];
+    }
+    return null;
   }
   
   cloneModel(name: string): Group {
@@ -140,6 +152,17 @@ export class AssetLoader {
             resolve();
           }, { once: true });
         })
+      })
+    )
+    
+    // Load sound
+    await Promise.all(
+      Object.keys(assetMap.audio).map(async name => {
+        /**
+          TODO: Need to load audio
+        */
+        const audio = new Audio(assetMap.audio[name]);
+        assets.addAudio(name, audio);
       })
     )
     

@@ -8,7 +8,7 @@ import * as THREE from "three";
 import { PlayerState } from "./player";
 import { Sandwitch, SandwitchState } from "./sandwitch";
 import { CameraMode } from "./gameCamera";
-import { bossFightDialogue, clearDialogue, createConversation, createDialogue, introDialogue } from "./dialogue";
+import { bossFightDialogue, clearDialogue, createConversation, createDialogue, endingDialogue, introDialogue } from "./dialogue";
 import { assetsPath } from "./assetMap";
 
 export abstract class SceneState {
@@ -55,6 +55,8 @@ export class BattleGameState extends SceneState {
   // The time passed
   timePassed: number = 0;
   
+  sandwitch: Sandwitch | null = null;
+  
   _initScene(): void {
     /**
       Create player
@@ -66,24 +68,27 @@ export class BattleGameState extends SceneState {
     /**
      * Create Sandwitch boss
      */
-    const s = new Sandwitch()
-    this.scene.addGameObject(s);
-    s.state = SandwitchState.Idle
-    s.model!.rotation.y = Math.PI;
-    s.model!.position.copy(this.scene.player.model!.position.clone()
+    this.sandwitch = new Sandwitch()
+    this.scene.addGameObject(this.sandwitch);
+    this.sandwitch.state = SandwitchState.Idle
+    this.sandwitch.model!.rotation.y = Math.PI;
+    this.sandwitch.model!.position.copy(this.scene.player.model!.position.clone()
       .add(new THREE.Vector3(0,0,200)))
     
     /**
      * Create floor
      */
     const b = new BattleFloor(this.scene.rows, this.scene.tileWidth)
-    b.generate(this.scene.player, s, this.scene.scene);
+    b.generate(this.scene.player, this.sandwitch, this.scene.scene);
     
     /**
       Update camera mode
     */
     this.scene.camera.mode = CameraMode.Exact;
-
+    /**
+      Start boss theme
+    */
+    this.scene.game.audio.play('bossTheme', true);
   }
   
   override onEnter(): void {
@@ -112,13 +117,6 @@ export class BattleGameState extends SceneState {
     this._initScene();
   }
   
-  /**
-   * Called when the battle is complete
-   */
-  onComplete(): void {
-    this.scene.game.onGameComplete();
-  }
-  
   override onPlayerInput(input: PlayerInput): void {
     if (input.move !== undefined) {
       this.scene.player.move(input.move)
@@ -145,6 +143,7 @@ export class BattleGameState extends SceneState {
     
     // Check collisions between player an obstacles
     if (this.scene.checkCollision()) {
+      this.scene.game.audio.play('death', true);
       this.scene.player.die()
         .then(() => createDialogue({
           text: "Don't give up Tashawasha!! We can beat him!!",
@@ -152,14 +151,19 @@ export class BattleGameState extends SceneState {
           spriteSrc: `${assetsPath}/mrborker/sad.png`,
         }, document.getElementById('dialogue-root')!))
         .then(() => {
+          // Decrease health to make game easier
+          this.battleTimeLength = Math.max(this.battleTimeLength - 10000, 50000)
           clearDialogue(document.getElementById('dialogue-root')!);
           this.scene.reset()
         })
     }
     
     // Check if battle completed
-    if (this.timePassed >= this.battleTimeLength) {
-      this.onComplete();
+    if (this.timePassed >= this.battleTimeLength && !this.scene.completed) {
+      this.scene.completed = true;
+      this.sandwitch!.die()
+        .then(() => createConversation(endingDialogue, document.getElementById('dialogue-root')!))
+        .then(() => this.scene.game.onGameComplete())
     }
   }
 }
@@ -172,7 +176,7 @@ export class SceneGameState extends SceneState{
   
   // The total length of the game for the player
   // to travel
-  gameLength: number = 500;
+  gameLength: number = 6000;
   
   constructor(scene: Scene) {
     super(scene);
@@ -187,6 +191,7 @@ export class SceneGameState extends SceneState{
   _initScene(): void {
     this.scene.player.state = PlayerState.Moving;
     this.cloudGenerator.generateToLimit(this.scene, this.scene.player.position);
+    this.scene.game.audio.play('whatIsLove', true);
   }
   
   override onEnter(): void {
@@ -194,7 +199,11 @@ export class SceneGameState extends SceneState{
     this.scene.camera.offset = new THREE.Vector3(0,15,-20);
     this.scene.camera.aheadDistance = 20;
     // Create game ui
-    createProgress(document.getElementById('ui')!)
+    createProgress(document.getElementById('ui')!, {
+      textBannerColor: '#3d2936',
+      text: 'Progress',
+      textColor: '#f5ffe8'
+    })
   }
   
   override onExit(): void {
@@ -243,6 +252,7 @@ export class SceneGameState extends SceneState{
     if (this.scene.player.position >= this.gameLength && !this.finished) {
       this.finished = true;
       this.scene.player.state = PlayerState.Idle;
+      this.scene.game.audio.play('dialogueTheme', true);
       createConversation(
         bossFightDialogue,
         document.getElementById('dialogue-root')!
@@ -256,6 +266,7 @@ export class SceneGameState extends SceneState{
     
     // Check collisions between player an obstacles
     if (this.scene.checkCollision() && !this.finished) {
+      this.scene.game.audio.play('death', true);
       this.scene.player.die()
         .then(() => createDialogue({
           text: "Don't give up!! Let's keep going Tashawasha!!",
@@ -263,6 +274,8 @@ export class SceneGameState extends SceneState{
           spriteSrc: `${assetsPath}/mrborker/sad.png`,
         }, document.getElementById('dialogue-root')!))
         .then(() => {
+          // Decrease max distance needed to make it easer
+          this.gameLength = Math.max(this.gameLength - 500, 2000);
           clearDialogue(document.getElementById('dialogue-root')!);
           this.scene.reset()
         })
