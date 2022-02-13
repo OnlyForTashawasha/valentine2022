@@ -232,6 +232,7 @@ export class ObstacleGenerator {
   process(delta: number, scene: Scene, playerPos: number) {
     this.boulderSpawnRate = Math.min(0.15, this.boulderSpawnRate + (0.0001 * delta / 1000));
     this.spawnMaxDist = Math.max(30, this.spawnMaxDist - (this.decreaseRate * delta / 1000));
+    
     // Generate the next spawn position
     if (this.nextSpawnPos === null) {
       // Create the new obstacle
