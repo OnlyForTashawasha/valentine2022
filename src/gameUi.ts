@@ -1,3 +1,4 @@
+import { assetsPath } from "./assetMap";
 import { createHTMLElement as e, replaceChildren } from "./helpers"
 
 export type ProgressBarProps = {
@@ -55,9 +56,28 @@ export function createProgress(
 // }
 
 export function createHomeUi(root: HTMLElement, onPlay: () => void) {
+  const onReset = () => {
+    if (confirm('Are you sure you want to reset all progress?')) {
+      window.localStorage.removeItem('introPlayed');
+      window.localStorage.removeItem('sandwitchReached');
+      alert('Progress resetted');  
+    } else {
+      alert('Reset cancelled');  
+    }
+  }
   replaceChildren(root, e('div', {
     class: 'home-ui-wrapper',
     children: [
+      e('button', {
+        onclick: onReset,
+        class: 'reset-ui-btn',
+        children: [
+          e('img', {
+            class: 'reset-ui-btn-icon',
+            src: `${assetsPath}/reset.svg`
+          })
+        ]
+      }),
       e('button', {
         onclick: onPlay,
         innerText: 'PLAY',
@@ -65,6 +85,25 @@ export function createHomeUi(root: HTMLElement, onPlay: () => void) {
       })
     ]
   }))
+}
+
+export function createClickToStart(root: HTMLElement): Promise<void> {
+  return new Promise((resolve, _) => {
+    const elem = e('div', {
+      class: 'clickToStartWrapper',
+      children: [
+        e('img', {
+          class: 'clickToStart',
+          src: `${assetsPath}/loading.png`,
+          onclick: () => {
+            elem.remove();
+            resolve();
+          },
+        })
+      ]
+    })
+    replaceChildren(root, elem);
+  })
 }
 
 export function clearUi(root: HTMLElement) {

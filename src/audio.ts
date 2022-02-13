@@ -1,5 +1,5 @@
 import { Assets } from "./assets";
-
+import { assetsPath } from "./assetMap";
 export class GameAudio {
   private _assets: Assets;
   private _currentAudio: HTMLAudioElement | null = null;
@@ -26,5 +26,37 @@ export class GameAudio {
     // Starts new audio
     this._currentAudio = audio;
     audio.play();
+  }
+}
+
+export class DialogueAudio {
+  private _assets: Assets;
+  
+  constructor(assets: Assets) {
+    this._assets = assets;
+  }
+  
+  // Word to say and how long to say it for
+  async generate(text: string, time: number): Promise<void> {
+    const audio = this._assets.getAudio('blipMale')!;
+    await new Promise<void>((resolve, _) => {
+      /**
+        Beeps don't seem to work on mobile so just disable it
+      */
+      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+        resolve();
+        return;
+      }
+      audio.volume = 0.4;
+      audio.currentTime = 0;
+      audio.playbackRate = time / audio.duration;
+      audio.onended = () => resolve();
+      // Play the audio
+      audio.play();
+      // setTimeout(() => {
+      //   audio.pause();
+      //   resolve();
+      // }, time * 1000);
+    });
   }
 }

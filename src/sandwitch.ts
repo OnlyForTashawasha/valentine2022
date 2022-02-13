@@ -23,6 +23,8 @@ export class Sandwitch extends Entity<SandwitchState> {
   
   private _currAttack: SandwitchAttack | null = null;
   
+  paused: boolean = false;
+  
   constructor() {
     super(1, SandwitchState.Idle);
   }
@@ -116,7 +118,7 @@ export class Sandwitch extends Entity<SandwitchState> {
   }
   
   override process(delta: number): GameObject {
-    if (this.state !== SandwitchState.Death) {
+    if (this.state !== SandwitchState.Death && !this.paused) {
       // Update attack
       this._currAttack?.process(delta);
       

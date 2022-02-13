@@ -158,10 +158,15 @@ export class AssetLoader {
     // Load sound
     await Promise.all(
       Object.keys(assetMap.audio).map(async name => {
-        /**
-          TODO: Need to load audio
-        */
         const audio = new Audio(assetMap.audio[name]);
+        assets.addAudio(name, audio);
+      })
+    )
+    // Load sound
+    await Promise.all(
+      Object.keys(assetMap.preloadAudio).map(async name => {
+        const audio = new Audio(assetMap.preloadAudio[name]);
+        audio.load();
         assets.addAudio(name, audio);
       })
     )

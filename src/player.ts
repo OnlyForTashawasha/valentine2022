@@ -11,7 +11,7 @@ export enum PlayerState {
   Moving,
   Idle,
   Airborne,
-  Happy,
+  Dance,
   MovingRight,
   MovingLeft,
   Death,
@@ -49,8 +49,8 @@ export class Player extends Entity<PlayerState> {
       case PlayerState.Airborne:
         this._playAnim('playerAirborneAnim');
         break;
-      case PlayerState.Happy:
-        this._playAnim('playerHappyAnim');
+      case PlayerState.Dance:
+        this._playAnim('playerDanceAnim');
         break;
       case PlayerState.MovingRight:
         this._playAnim('playerMoveRightAnim');

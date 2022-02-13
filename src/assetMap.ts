@@ -12,7 +12,7 @@ export const GAMEASSETS: AssetMap = {
     playerMoveLeftAnim: `${assetsPath}/mrborker/runLeft.fbx`,
     playerIdleAnim: `${assetsPath}/mrborker/idle.fbx`,
     playerAirborneAnim: `${assetsPath}/mrborker/airborne.fbx`,
-    playerHappyAnim: `${assetsPath}/mrborker/happy.fbx`,
+    playerDanceAnim: `${assetsPath}/mrborker/dance.fbx`,
     playerDeathAnim: `${assetsPath}/mrborker/death.fbx`,
     sandwitchIdleAnim: `${assetsPath}/sandwitch/idle.fbx`,
     sandwitchJumpAttackAnim: `${assetsPath}/sandwitch/jumpAttack.fbx`,
@@ -37,12 +37,17 @@ export const GAMEASSETS: AssetMap = {
     `${assetsPath}/sandwitch/neutral.png`,
     `${assetsPath}/sandwitch/serious.png`,
     `${assetsPath}/sandwitch/weird.png`,
+    `${assetsPath}/loading.png`,
   ],
   audio: {
     bossTheme: `${assetsPath}/sound/bossTheme.mp3`,
     whatIsLove: `${assetsPath}/sound/whatIsLove.mp3`,
     dialogueTheme: `${assetsPath}/sound/dialogueTheme.mp3`,
     death: `${assetsPath}/sound/death.mp3`,
+    dance: `${assetsPath}/sound/dance.mp3`,
+  },
+  preloadAudio: {
+    blipMale: `${assetsPath}/sound/blipMale.wav`,
   }
 }
 
@@ -59,6 +64,9 @@ export type AssetMap = {
   // List of images to preload
   images: Array<string>
   audio: {
+    [key: string]: string
+  }
+  preloadAudio: {
     [key: string]: string
   }
 }
