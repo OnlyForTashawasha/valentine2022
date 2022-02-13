@@ -1,96 +1,51 @@
 
-const messages = [
-  `pg1sdfsdfffffffffffffffffffffff`,
-  'sdfsdfsdfffffffffffffffffffsdfs',
-  'pg3',
-  'pg4',
-  'pg5',
-]
-
-function setMobileFullScreen() {
-  // We execute the same script as before
-  let vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-  // We listen to the resize event
-  window.addEventListener('resize', () => {
-    // We execute the same script as before
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-  });
-}
-
-function createHTMLElement(name, attributes) {
-  let newElem = document.createElement(name);
-  for (let a in attributes) {
-    if (a.startsWith('on')) {
-      newElem.addEventListener(a.substring(2), attributes[a]);
-    } else if (a == 'innerText') {
-      newElem.innerText = attributes[a];
-    } else if (a == 'class') {
-      //Add each class to the class list
-      for (let className of attributes[a].split(' ')) {
-        newElem.classList.add(className);
-      }
-    } else if (a == 'children') {
-      //If given a list of children, add it to the new element
-      for (let child of attributes[a]) {
-        newElem.appendChild(child);
-      }
-    } else {
-      newElem.setAttribute(a, attributes[a]);
-    }
-  }
-  return newElem;
-}
-
-function update(index) {
-  const wrapper = document.getElementById('panelWrapper');
-  [...wrapper.children].forEach((c, i) => {
-    if (i === index) {
-      c.classList.add('panelShow');
-    } else {
-      c.classList.remove('panelShow');
-    }
-  })
-};
-
-function init() {
-  setMobileFullScreen();
+const main = async () => {
+  // Fetch letter
+  const r = await fetch('./letter.json');
+  const letter = (await r.json()).letter;
   
-  // Delete letter on click
-  document.getElementById('present').addEventListener('click', () => {
-    document.getElementById('present').remove();
-  })
-  
-  const wrapper = document.getElementById('panelWrapper');
-  // Make messages
-  messages.map(m => {
-    const e = createHTMLElement('div', {
-      class: 'panel',
-      children: [
-        createHTMLElement('div', {
-          class: 'panelText',
-          innerText: m
-        })
-      ]
-    });
-    // Add to wrapper
-    wrapper.appendChild(e);
-  })
-  
+  // Stores current index
   let index = 0;
-  update(index);
-  document.getElementById('nextBtn').addEventListener('click', () => {
-    index = (index + 1) % wrapper.children.length;
-    update(index);
-  })
-  document.getElementById('prevBtn').addEventListener('click', () => {
-    index = (index - 1);
-    if (index === -1) {
-      index = wrapper.children.length - 1;
+  
+  // Render dialogue
+  const render = () => {
+    const data = letter[index];
+    const img = document.getElementById('char');
+    img.src = `../assets/ash/${data.face}.png`;
+    
+    const dialogue = document.getElementById('dialogue');
+    dialogue.innerText = data.text;
+    
+    // Shows the words one at a time
+    const speakText = async () => {
+      // Split text into words
+      const words = data.text.split(" ");
+      const wordTime = 0.05;
+      let totalStr = null;
+      for (const w of words) {
+        // Update total string
+        totalStr = totalStr === null ? w : totalStr + ` ${w}`;
+        dialogue.innerText = totalStr;
+        await new Promise((r, _) => setTimeout(r, wordTime * 1000));
+      }
     }
-    update(index);
+    speakText();
+  }
+  render();
+  
+  let audio = null;
+  // Attach listeners
+  document.getElementById('dialogue').addEventListener('click', () => {
+    // Increment index
+    index = Math.min(index + 1, letter.length - 1);
+    render();
+    
+    // Play audio if not playing
+    if (audio === null) {
+      audio = new Audio('../assets/sound/some.mp3');
+      audio.loop = true;
+      audio.play();
+    }
   })
 }
-
-init();
+main();
