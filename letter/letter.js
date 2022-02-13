@@ -7,6 +7,8 @@ const main = async () => {
   // Stores current index
   let index = 0;
   
+  let isRendering = false;
+  
   // Render dialogue
   const render = () => {
     const data = letter[index];
@@ -28,6 +30,7 @@ const main = async () => {
         dialogue.innerText = totalStr;
         await new Promise((r, _) => setTimeout(r, wordTime * 1000));
       }
+      isRendering = false;
     }
     speakText();
   }
@@ -38,7 +41,10 @@ const main = async () => {
   document.getElementById('dialogue').addEventListener('click', () => {
     // Increment index
     index = Math.min(index + 1, letter.length - 1);
-    render();
+    if (!isRendering) {
+      isRendering = true;
+      render();
+    }
     
     // Play audio if not playing
     if (audio === null) {

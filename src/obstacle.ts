@@ -220,7 +220,7 @@ export class ObstacleGenerator {
     const roll = Math.random();
     let obstacle = null;
     if (roll < this.boulderSpawnRate) {
-      obstacle = new LicoriceMissile(3);
+      obstacle = new Cactus(3);
     } else {
       obstacle = new Cactus(3);
     }
