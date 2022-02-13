@@ -1,18 +1,24 @@
+import { text } from "@fortawesome/fontawesome-svg-core";
 import { assetsPath } from "./assetMap";
+import { DialogueAudio } from "./audio";
 import { createHTMLElement as e, replaceChildren } from "./helpers"
 
 export type Dialogue = {
   text: string,
   name: string,
   spriteSrc: string,
+  // The time taken for each word to be spoken 
+  wordTime?: number,
 }
 
 export async function createConversation(
   dialogues: Array<Dialogue>,
-  dialogueElem: HTMLElement): Promise<void>
+  dialogueElem: HTMLElement,
+  dAudio: DialogueAudio
+  ): Promise<void>
 {
   for (const d of dialogues) {
-    await createDialogue(d, dialogueElem);
+    await createDialogue(d, dialogueElem, dAudio);
   }
 }
 
@@ -23,12 +29,18 @@ export async function createConversation(
  * @param dialogueElem 
  */
 export function createDialogue(
-  d: Dialogue, dialogueElem: HTMLElement): Promise<void>
+  d: Dialogue, dialogueElem: HTMLElement, dAudio: DialogueAudio
+  ): Promise<void>
 {
   return new Promise((resolve, _) => {
     dialogueElem.addEventListener(`click`, () => {
       resolve();
     }, { once: true })
+    // Text
+    const textElem = e(`div`, {
+      class: `dialogue-text`,
+    })
+    
     // Create dialogue
     const elem = e(`div`, {
       class: `dialogue-wrapper`,
@@ -44,10 +56,7 @@ export function createDialogue(
               class: `dialogue-name`,
               innerText: d.name
             }),
-            e(`div`, {
-              class: `dialogue-text`,
-              innerText: d.text
-            })
+            textElem
           ]
         })
       ]
@@ -55,6 +64,24 @@ export function createDialogue(
     replaceChildren(dialogueElem, elem);
     dialogueElem.style.opacity = `1`;
     dialogueElem.style.zIndex = `9999`;
+    
+    // Shows the words one at a time
+    const speakText = async () => {
+      // Split text into words
+      const words = d.text.split(" ");
+      const defaultWordTime = 0.05;
+      const wordTime = d.wordTime || defaultWordTime;
+      let totalStr: null | string = null;
+      for (const w of words) {
+        // Update total string
+        totalStr = totalStr === null ? w : totalStr + ` ${w}`;
+        textElem.innerText = totalStr;
+        // dAudio
+        dAudio.generate(w, wordTime);
+        await new Promise((r, _) => setTimeout(r, wordTime * 1000));
+      }
+    }
+    speakText();
   })
 }
 
@@ -72,7 +99,8 @@ export const introDialogue = [
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/angry.png`,
-    text: "Stahp you intruder!!"
+    text: "Stahp you intruder!!",
+    wordTime: 0.05,
   },
   {
     name: "Mr Borker",
@@ -82,57 +110,68 @@ export const introDialogue = [
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/disappointed.png`,
-    text: "I know you ..."
+    text: "I know you ...",
+    wordTime: 0.15,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/happy.png`,
-    text: "It`s Tashawasha!!! *Happy Noises*"
+    text: "It`s Tashawasha!!! *Happy Noises*",
+    wordTime: 0.05,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/neutral.png`,
-    text: "Mr Borker wants to wish Tashawasha and Ash a happy valentine`s day!!"
+    text: "Mr Borker wants to wish Tashawasha and Ash a happy valentine`s day!!",
+    wordTime: 0.05,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/happy.png`,
-    text: "Anddd Ash tried to surprise you again by leaving a cute valentine letter for you!"
+    text: "Anddd Ash tried to surprise you again by leaving a cute valentine letter for you!",
+    wordTime: 0.05,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/neutral.png`,
-    text: "Let me get it for you!"
+    text: "Let me get it for you!",
+    wordTime: 0.05,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/neutral.png`,
-    text: "."
+    text: ".",
+    wordTime: 0.1,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/disappointed.png`,
-    text: "....."
+    text: ". . .",
+    wordTime: 0.2,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/shocked.png`,
-    text: ".... IT`S GONE!!!"
+    text: ".... IT`S GONE!!!",
+    wordTime: 0.2,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/sad.png`,
-    text: "O no - where did it go ;-;"
+    text: "O no - where did it go ;-;",
+    wordTime: 0.05,
   },
   {
     name: "SandWitch",
     spriteSrc: `${assetsPath}/sandwitch/neutral.png`,
-    text: "Mwahahahaha"
+    text: "Mwahahahaha",
+    wordTime: 0.05,
   },
   {
     name: "Mr Borker",
     spriteSrc: `${assetsPath}/mrborker/angry.png`,
-    text: "Wait who are you????"
+    text: "Wait who are you????",
+    wordTime: 0.05,
   },
   {
     name: "SandWitch",

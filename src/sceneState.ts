@@ -8,7 +8,7 @@ import * as THREE from "three";
 import { PlayerState } from "./player";
 import { Sandwitch, SandwitchState } from "./sandwitch";
 import { CameraMode } from "./gameCamera";
-import { bossFightDialogue, clearDialogue, createConversation, createDialogue, endingDialogue, introDialogue } from "./dialogue";
+import { bossFightDialogue, clearDialogue, createConversation, createDialogue, Dialogue, endingDialogue, introDialogue } from "./dialogue";
 import { assetsPath } from "./assetMap";
 
 export abstract class SceneState {
@@ -33,7 +33,7 @@ export abstract class SceneState {
 export class HomeSceneState extends SceneState {
   override onEnter(): void {
     // Create player scene
-    this.scene.player.state = PlayerState.Happy;
+    this.scene.player.state = PlayerState.Dance;
     const pPos = this.scene.player.model!.position;
     const threeCamera = this.scene.camera.camera;
     threeCamera.position.copy(pPos.clone().add(new THREE.Vector3(0, 5, 10)));
@@ -41,8 +41,15 @@ export class HomeSceneState extends SceneState {
     
     // Create ui
     createHomeUi(document.getElementById('ui')!, () => {
-      this.scene.setState(new SceneGameState(this.scene))
+      if (window.localStorage.getItem('sandwitchReached') === 'true') {
+        this.scene.setState(new BattleGameState(this.scene));
+      } else {
+        this.scene.setState(new SceneGameState(this.scene))
+      }
     });
+    
+    // Create audio
+    this.scene.game.audio.play('dance', true);
   }
   override onExit(): void {
     clearUi(document.getElementById('ui')!);
@@ -56,6 +63,8 @@ export class BattleGameState extends SceneState {
   timePassed: number = 0;
   
   sandwitch: Sandwitch | null = null;
+  
+  private _inDialogue: boolean = false;
   
   _initScene(): void {
     /**
@@ -89,6 +98,19 @@ export class BattleGameState extends SceneState {
       Start boss theme
     */
     this.scene.game.audio.play('bossTheme', true);
+    
+    this.createConversation([
+      {
+        name: "SandWitch",
+        spriteSrc: `${assetsPath}/sandwitch/serious.png`,
+        text: "It's over Doggo!! You will never get the letter back!"
+      },
+      {
+        name: "Mr Borker",
+        spriteSrc: `${assetsPath}/mrborker/angry.png`,
+        text: "Not if we stop you Sandwitch!!",
+      },
+    ])
   }
   
   override onEnter(): void {
@@ -126,11 +148,23 @@ export class BattleGameState extends SceneState {
     }
   }
   
+  async createConversation(dialogues: Array<Dialogue>): Promise<void> {
+    this._inDialogue = true;
+    this.sandwitch!.paused = true;
+    const root = document.getElementById('dialogue-root')!;
+    await createConversation(dialogues,
+      root,
+      this.scene.game.dAudio);
+    clearDialogue(root)
+    this.sandwitch!.paused = false;
+    this._inDialogue = false;
+  }
+  
   override process(delta: number): void {
     // Update camera
     this.scene.camera.process(delta, this.scene.player);
     // Update time passed and progress bar
-    if (this.scene.player.state !== PlayerState.Death) {
+    if (this.scene.player.state !== PlayerState.Death && !this._inDialogue) {
       this.timePassed = Math.min(this.timePassed + delta, this.battleTimeLength);
     }
     // Update progress bar
@@ -149,7 +183,10 @@ export class BattleGameState extends SceneState {
           text: "Don't give up Tashawasha!! We can beat him!!",
           name: "Mr Borker",
           spriteSrc: `${assetsPath}/mrborker/sad.png`,
-        }, document.getElementById('dialogue-root')!))
+          wordTime: 0.15,
+        }, document.getElementById('dialogue-root')!,
+          this.scene.game.dAudio
+        ))
         .then(() => {
           // Decrease health to make game easier
           this.battleTimeLength = Math.max(this.battleTimeLength - 10000, 50000)
@@ -162,7 +199,7 @@ export class BattleGameState extends SceneState {
     if (this.timePassed >= this.battleTimeLength && !this.scene.completed) {
       this.scene.completed = true;
       this.sandwitch!.die()
-        .then(() => createConversation(endingDialogue, document.getElementById('dialogue-root')!))
+        .then(() => createConversation(endingDialogue, document.getElementById('dialogue-root')!, this.scene.game.dAudio))
         .then(() => this.scene.game.onGameComplete())
     }
   }
@@ -253,9 +290,12 @@ export class SceneGameState extends SceneState{
       this.finished = true;
       this.scene.player.state = PlayerState.Idle;
       this.scene.game.audio.play('dialogueTheme', true);
+      // Save to local storage
+      window.localStorage.setItem('sandwitchReached', 'true');
       createConversation(
         bossFightDialogue,
-        document.getElementById('dialogue-root')!
+        document.getElementById('dialogue-root')!,
+        this.scene.game.dAudio
       )
         .then(() => {
           clearDialogue(document.getElementById('dialogue-root')!);
@@ -272,7 +312,10 @@ export class SceneGameState extends SceneState{
           text: "Don't give up!! Let's keep going Tashawasha!!",
           name: "Mr Borker",
           spriteSrc: `${assetsPath}/mrborker/sad.png`,
-        }, document.getElementById('dialogue-root')!))
+          wordTime: 0.15,
+        }, document.getElementById('dialogue-root')!,
+          this.scene.game.dAudio
+        ))
         .then(() => {
           // Decrease max distance needed to make it easer
           this.gameLength = Math.max(this.gameLength - 500, 2000);

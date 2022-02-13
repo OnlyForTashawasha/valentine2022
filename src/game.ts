@@ -4,7 +4,7 @@ import { Controller } from "./controller";
 import { replaceChildren } from "./helpers";
 import { createConversation } from "./dialogue";
 import { assetsPath } from "./assetMap";
-import { GameAudio } from "./audio";
+import { DialogueAudio, GameAudio } from "./audio";
 
 export class Game {
   lastProcess: number = performance.now();
@@ -14,11 +14,13 @@ export class Game {
   root: HTMLElement 
   isActive: boolean = false;
   audio: GameAudio;
-  constructor(assets: Assets, root: HTMLElement) {
+  dAudio: DialogueAudio;
+  constructor(assets: Assets, root: HTMLElement, dAudio: DialogueAudio) {
     this.assets = assets;
     this.root = root;
-    this.scene = new Scene(assets, this);
     this.audio = new GameAudio(assets);
+    this.scene = new Scene(assets, this);
+    this.dAudio = dAudio;
   }
   
   /**

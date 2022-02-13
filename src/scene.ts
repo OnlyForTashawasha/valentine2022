@@ -105,7 +105,6 @@ export class Scene {
     this.addGameObject(this.player);
     
     // Add starting scene
-    // this._state = new BattleGameState(this);
     this._state = new HomeSceneState(this);
     this._state.onEnter();
   }
