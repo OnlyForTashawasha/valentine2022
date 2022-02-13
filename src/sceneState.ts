@@ -206,7 +206,7 @@ export class BattleGameState extends SceneState {
 }
 
 export class SceneGameState extends SceneState{
-  obstacleGenerator: ObstacleGenerator = new ObstacleGenerator();
+  obstacleGenerator: ObstacleGenerator;
   cloudGenerator: CloudGenerator = new CloudGenerator();
   floor: Floor;
   finished: boolean = false;
@@ -217,6 +217,7 @@ export class SceneGameState extends SceneState{
   
   constructor(scene: Scene) {
     super(scene);
+    this.obstacleGenerator = new ObstacleGenerator(this.gameLength);
     this.floor = new Floor(
       this.scene.rows,
       scene.tileWidth,
@@ -319,6 +320,7 @@ export class SceneGameState extends SceneState{
         .then(() => {
           // Decrease max distance needed to make it easer
           this.gameLength = Math.max(this.gameLength - 500, 2000);
+          this.obstacleGenerator.gameLength = this.gameLength;
           clearDialogue(document.getElementById('dialogue-root')!);
           this.scene.reset()
         })

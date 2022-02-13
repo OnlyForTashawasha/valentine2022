@@ -2,6 +2,7 @@ import { GameObject, GameSceneObject } from "./gameObject";
 import * as THREE from "three";
 import { Assets } from "./assets";
 import { Scene } from "./scene";
+import { Sandwitch, SandwitchState } from "./sandwitch";
 
 export abstract class Obstacle extends GameSceneObject {
   // The distance at which the obstacle will unload
@@ -201,6 +202,14 @@ export class ObstacleGenerator {
   
   boulderSpawnRate: number = 0.005
   
+  gameLength: number;
+  
+  private _hasSpawnSandwitch: boolean = false
+  
+  constructor(gameLength: number) {
+    this.gameLength = gameLength;
+  }
+  
   reset(): void {
     this.spawnMaxDist = 100;
     this.boulderSpawnRate = 0.005
@@ -232,8 +241,25 @@ export class ObstacleGenerator {
     } else {
       // If destination reached spawn an obstacle
       if (playerPos + this.spawnAhead >= this.nextSpawnPos) {
-        this.spawn(scene, this.nextSpawnPos);
-        this.nextSpawnPos = null;
+        if (this.nextSpawnPos >= this.gameLength) {
+          console.log(this._hasSpawnSandwitch);
+          if (!this._hasSpawnSandwitch) {
+            /**
+             * Create Sandwitch boss
+             */
+            const sandwitch = new Sandwitch()
+            scene.addGameObject(sandwitch);
+            sandwitch.state = SandwitchState.Idle
+            sandwitch.paused = true;
+            sandwitch.model!.rotation.y = Math.PI;
+            sandwitch.position = this.nextSpawnPos + 5;
+            sandwitch.model!.scale.setScalar(0.1);
+            this._hasSpawnSandwitch = true;
+          }
+        } else {
+          this.spawn(scene, this.nextSpawnPos);
+          this.nextSpawnPos = null;
+        }
       }
     }
   }
